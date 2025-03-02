@@ -2,9 +2,7 @@
   "name": "@json-schema-form/core",
   "version": "0.0.0",
   "private": true,
-  "exports": {
-    "./*": "./src/*.tsx"
-  },
+  "main": "src/index.ts",
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
@@ -21,7 +19,11 @@
     "typescript": "5.7.3"
   },
   "dependencies": {
+    "@types/lodash": "^4.17.16",
+    "lodash": "^4.17.21",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "type-fest": "^4.36.0",
+    "use-context-selector": "^2.0.0"
   }
 }
