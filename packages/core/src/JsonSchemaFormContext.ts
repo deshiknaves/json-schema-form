@@ -13,6 +13,9 @@ export type JsonSchemaForm<Values extends FieldValues = FieldValues> = {
   ) => void
   register: (path: Path<Values>) => Omit<FieldRegistry<Values>, 'unregister'>
   unregister: (path: Path<Values>) => void
+  registerValuesListener: (
+    listener: (values: Partial<Values>) => void,
+  ) => () => void
 }
 
 export const JsonSchemaFormContext = createContext<JsonSchemaForm | null>(null)

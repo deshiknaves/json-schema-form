@@ -1,7 +1,7 @@
 import { JsonSchemaFormProvider } from './JsonSchemaFormProvider'
 import { FieldValues, OnFieldChange } from './types'
-import { ReactNode, useRef, useState } from 'react'
-import { useFormContextValue } from './useFormContextValue'
+import { ReactNode, useRef } from 'react'
+import { useValuesObserver } from './useValuesObserver'
 
 type JsonSchemaFormProps<Values extends FieldValues = FieldValues> = {
   children?: ReactNode
@@ -13,13 +13,12 @@ function JsonSchemaChildren<Values extends FieldValues = FieldValues>({
 }: {
   children?: ReactNode
 }) {
-  const getValues = useFormContextValue<Values, 'getValues'>('getValues')
-  const [debugValues, setDebugValues] = useState<Partial<Values>>(getValues)
+  const values = useValuesObserver<Values>()
 
   return (
     <>
       {children}
-      {debugValues ? <pre>{JSON.stringify(getValues(), null, 2)}</pre> : null}
+      <pre>{JSON.stringify(values, null, 2)}</pre>
     </>
   )
 }

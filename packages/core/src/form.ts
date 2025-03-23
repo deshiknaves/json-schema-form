@@ -18,9 +18,18 @@ export type FieldRegistry<Value extends FieldValues> = {
 export class Form<Value extends FieldValues = FieldValues> {
   values: Partial<Value> = {}
   fieldRegistry: Map<Path<Value>, FieldRegistry<Value>> = new Map()
+  valuesListeners: Array<(values: Partial<Value>) => void> = []
 
-  constructor() {
-    console.log('Form initialized')
+  removeValuesListener(listener: (values: Partial<Value>) => void) {
+    this.valuesListeners = this.valuesListeners.filter((l) => l !== listener)
+  }
+
+  addValuesListener(listener: () => void) {
+    this.valuesListeners.push(listener)
+
+    return () => {
+      this.removeValuesListener(listener)
+    }
   }
 
   getValues() {
@@ -39,6 +48,7 @@ export class Form<Value extends FieldValues = FieldValues> {
     if (this.fieldRegistry.has(path)) {
       return omit(this.fieldRegistry.get(path), ['unregister'])
     }
+
     const registry: FieldRegistry<Value> = {
       path,
       onFocus: () => {
@@ -61,6 +71,9 @@ export class Form<Value extends FieldValues = FieldValues> {
         } else {
           set(this.values, path, value)
         }
+
+        this.valuesListeners.forEach((listener) => listener(this.values))
+
         console.log('Value updated:', this.values)
       },
       unregister: () => {
