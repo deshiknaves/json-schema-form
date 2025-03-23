@@ -1,53 +1,41 @@
 import { JsonSchemaFormProvider } from './JsonSchemaFormProvider'
-import { FieldValues, OnFieldChange, Path, PathValue } from './types'
-import { useCallback, useRef, useState } from 'react'
+import { FieldValues, OnFieldChange } from './types'
+import { ReactNode, useRef, useState } from 'react'
+import { useFormContextValue } from './useFormContextValue'
 
 type JsonSchemaFormProps<Values extends FieldValues = FieldValues> = {
+  children?: ReactNode
   onFieldChange: OnFieldChange<Values>
 }
 
-export function JsonSchemaForm<Values extends FieldValues = FieldValues>({
-  onFieldChange,
-}: JsonSchemaFormProps<Values>) {
-  const valuesRef = useRef<Partial<Values>>({})
-  const [debugValues, setDebugValues] = useState<Partial<Values>>(
-    valuesRef.current,
-  )
-  const onFieldChangeRef = useRef(onFieldChange)
-  onFieldChangeRef.current = onFieldChange
-
-  const getFieldValue = useCallback(<P extends Path<Values>>(name: P) => {
-    return valuesRef.current[name] as PathValue<Values, P>
-  }, [])
-
-  const getValues = useCallback(() => {
-    return valuesRef.current
-  }, [])
-
-  const setFieldValue = useCallback(
-    <P extends Path<Values>>(
-      name: P,
-      value: PathValue<Values, P> | undefined,
-    ) => {
-      valuesRef.current[name] = value as Values[P] | undefined
-
-      onFieldChangeRef.current({ name, value })
-
-      setDebugValues({ ...valuesRef.current })
-    },
-    [],
-  )
+function JsonSchemaChildren<Values extends FieldValues = FieldValues>({
+  children,
+}: {
+  children?: ReactNode
+}) {
+  const getValues = useFormContextValue<Values, 'getValues'>('getValues')
+  const [debugValues, setDebugValues] = useState<Partial<Values>>(getValues)
 
   return (
     <>
-      <JsonSchemaFormProvider<Values>
-        getFieldValue={getFieldValue}
-        getValues={getValues}
-        setFieldValue={setFieldValue}
-      >
-        JsonSchemaForm
+      {children}
+      {debugValues ? <pre>{JSON.stringify(getValues(), null, 2)}</pre> : null}
+    </>
+  )
+}
+
+export function JsonSchemaForm<Values extends FieldValues = FieldValues>({
+  children,
+  onFieldChange,
+}: JsonSchemaFormProps<Values>) {
+  const onFieldChangeRef = useRef(onFieldChange)
+  onFieldChangeRef.current = onFieldChange
+
+  return (
+    <>
+      <JsonSchemaFormProvider<Values>>
+        <JsonSchemaChildren<Values>>{children}</JsonSchemaChildren>
       </JsonSchemaFormProvider>
-      {debugValues ? <pre>{JSON.stringify(debugValues, null, 2)}</pre> : null}
     </>
   )
 }

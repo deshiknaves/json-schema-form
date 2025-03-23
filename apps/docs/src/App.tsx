@@ -1,4 +1,4 @@
-import { JsonSchemaForm } from '@json-schema-form/core'
+import { JsonSchemaForm, useFormContextValue } from '@json-schema-form/core'
 
 type Person = {
   name: string
@@ -11,6 +11,33 @@ type Person = {
   }
 }
 
+function Fields() {
+  const register = useFormContextValue('register')
+
+  return (
+    <div className="flex flex-col gap-4">
+      <label htmlFor="name">
+        Name
+        <input
+          className="border border-border"
+          name="name"
+          {...register('name')}
+        />
+      </label>
+
+      <label htmlFor="age">
+        Age
+        <input
+          type="number"
+          className="border border-border"
+          name="age"
+          {...register('age')}
+        />
+      </label>
+    </div>
+  )
+}
+
 function App() {
   return (
     <>
@@ -20,7 +47,9 @@ function App() {
             console.log(name, value)
           }
         }}
-      />
+      >
+        <Fields />
+      </JsonSchemaForm>
     </>
   )
 }
